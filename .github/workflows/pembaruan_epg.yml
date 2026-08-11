@@ -1,0 +1,30 @@
+name: Pembaruan EPG Otomatis
+
+on:
+  schedule:
+    # Menjadwalkan skrip berjalan setiap hari pada jam 00:00 UTC (07:00 WIB)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Memunculkan tombol agar kita bisa menjalankannya manual
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mengambil File Repositori
+        uses: actions/checkout@v3
+
+      - name: Menyiapkan Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Menjalankan Skrip Python
+        run: python generate_epg.py
+
+      - name: Menyimpan epg.xml Kembali ke GitHub
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Robot"
+          git add epg.xml
+          git diff --quiet && git diff --staged --quiet || git commit -m "Pembaruan Jadwal EPG"
+          git push
